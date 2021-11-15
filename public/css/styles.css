@@ -74,11 +74,20 @@ p {
 }
 
 a {
+  align-self: center;
+  padding-top: 5%;
   padding-left: 5%;
-  color: gray;
+  color: rgb(201, 192, 192);
+
+ 
 }
 a:hover {
   color: #a683e3;
+}
+
+.a-tags {
+  margin-top: 5%;
+ 
 }
 
 form.item {

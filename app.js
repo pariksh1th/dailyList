@@ -15,7 +15,7 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-// Data base part
+// Data base setup
 
 mongoose.connect("mongodb://localhost:27017/todolistDB");
 
@@ -32,22 +32,48 @@ const List = mongoose.model("List", listSchema);
 
 const Task = mongoose.model("Task", tasksSchema);
 
+// --------------+--------------
+
+// default list
+
 const item1 = new Task({
   name: "Welcome to todolist",
 });
 const item2 = new Task({
   name: "Click on + button to add a task",
 });
-const item3 = new Task({
-  name: "<-- click here when you complete one",
-});
 
-const defaultList = [item1, item2, item3];
+const defaultList = [item1, item2];
+
+// --------------+--------------
+
+// workday list
+
+const task1 = new Task({
+  name: "Meditation",
+});
+const task2 = new Task({
+  name: "Workout",
+});
+const task3 = new Task({
+  name: "Fresh up",
+});
+const task4 = new Task({
+  name: "Code for 2 hours",
+});
+const task5 = new Task({
+  name: "Read book",
+});
+const workday = [task1, task2, task3, task4, task5];
+
+// --------------+--------------
+
+// get rout part
 
 app.get("/", function (req, res) {
   Task.find({}, function (err, foundItems) {
     if (foundItems.length === 0) {
-      Task.insertMany(defaultList, function (err) {
+      Task.insertMany(workday, function (err) {
         if (err) {
           console.log(err);
         } else {
@@ -60,6 +86,34 @@ app.get("/", function (req, res) {
     }
   });
 });
+
+app.get("/:customListName", function (req, res) {
+  const customListName = _.capitalize(req.params.customListName);
+  List.findOne({ name: customListName }, function (err, foundList) {
+    if (!err) {
+      if (!foundList) {
+        //creat a new list
+        const list = new List({
+          name: customListName,
+          tasks: defaultList,
+        });
+
+        list.save();
+        res.redirect("/" + customListName);
+      } else {
+        //show an existing list
+        res.render("list", {
+          listTitle: customListName,
+          newListItems: foundList.tasks,
+        });
+      }
+    }
+  });
+});
+
+// --------------+--------------
+
+// post rout part
 
 app.post("/", function (req, res) {
   const item = req.body.newItem;
@@ -108,37 +162,7 @@ app.post("/delete", function (req, res) {
   }
 });
 
-app.get("/work", function (req, res) {
-  res.render("list", { listTitle: "Work List", newListItems: workItems });
-});
-
-app.get("/about", function (req, res) {
-  res.render("about");
-});
-
-app.get("/:customListName", function (req, res) {
-  const customListName = _.capitalize(req.params.customListName);
-  List.findOne({ name: customListName }, function (err, foundList) {
-    if (!err) {
-      if (!foundList) {
-        //creat a new list
-        const list = new List({
-          name: customListName,
-          tasks: defaultList,
-        });
-
-        list.save();
-        res.redirect("/" + customListName);
-      } else {
-        //show an existing list
-        res.render("list", {
-          listTitle: customListName,
-          newListItems: foundList.tasks,
-        });
-      }
-    }
-  });
-});
+// --------------+--------------
 
 app.listen(3000, function () {
   console.log("Server started on port 3000");
