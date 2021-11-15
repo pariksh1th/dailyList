@@ -15,9 +15,14 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-// Data base setup
+// // Data base setup
 
-mongoose.connect("mongodb://localhost:27017/todolistDB");
+// admin-pari
+// // parikshith107
+
+const url =
+  "mongodb+srv://admin-pari:parikshith107@dailytodolist.sy9zt.mongodb.net/todolistDatabase?retryWrites=true&w=majority";
+mongoose.connect(url);
 
 const tasksSchema = {
   name: String,
